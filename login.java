@@ -8,43 +8,33 @@ package com.mycompany.chatbox.ai;
  *
  * @author Student
  */
-class login {
-    public String name;
-    public String cell_num;
-    public String username;
-    public String password;
 
-    
-            
+public class login {
+
+    private String registeredUsername;
+    private String registeredPassword;
+    private boolean registered = false;
+
     public boolean checkUsername(String username) {
         boolean hasUnderscore = username.contains("_");
         boolean lengthOk = username.length() <= 5;
 
-        boolean hasUpperUsername = false;
+        boolean hasUpper = false;
         for (int i = 0; i < username.length(); i++) {
-            char c = username.charAt(i);
-            if (Character.isUpperCase(c)) {
-                hasUpperUsername = true;
+            if (Character.isUpperCase(username.charAt(i))) {
+                hasUpper = true;
             }
         }
-
-        if (hasUnderscore && lengthOk && hasUpperUsername) {
-            System.out.println("Username successfully captured.");
-            return true;
-        } else {
-            System.out.println("Username is not correctly formatted; please ensure your username contains an underscore, a capital letter, and is no more than five characters in length.");
-            return false;
-        }
+        return hasUnderscore && lengthOk && hasUpper;
     }
 
-    public boolean checkPassword(String password) {
+    public boolean checkPasswordComplexity(String password) {
         boolean hasUpper = false;
         boolean hasDigit = false;
         boolean hasSpecial = false;
 
         for (int i = 0; i < password.length(); i++) {
             char c = password.charAt(i);
-
             if (Character.isUpperCase(c)) {
                 hasUpper = true;
             }
@@ -55,29 +45,63 @@ class login {
                 hasSpecial = true;
             }
         }
-
-        boolean lengthOk = password.length() >= 8;
-
-        if (lengthOk && hasUpper && hasDigit && hasSpecial) {
-            System.out.println("Password successfully captured.");
-            return true;
-        } else {
-            System.out.println("Password is not correctly formatted; please ensure the password contains at least eight characters, a capital letter, a number, and a special character.");
-            return false;
-        }
+        return password.length() >= 8 && hasUpper && hasDigit && hasSpecial;
     }
 
-    public  boolean checkPhoneNumber(String phoneNumber) {
-        boolean phoneOk = phoneNumber.matches("^\\+27\\d{9}$");
-
-        if (phoneOk) {
-            System.out.println("Cell phone number added.");
-            return true;
-        } else {
-            System.out.println("Cell phone number incorrectly formatted or does not contain international code.");
-            return false;
-        }
+    public boolean checkCellPhoneNumber(String cellNumber) {
+        return cellNumber.matches("^\\+27\\d{9}$");
     }
 
+    public String registerUser(String username, String password, String cellNumber) {
+        String result = "";
+        boolean usernameOk = checkUsername(username);
+        boolean passwordOk = checkPasswordComplexity(password);
+        boolean cellOk = checkCellPhoneNumber(cellNumber);
 
+        if (usernameOk) {
+            result = result + "Username successfully captured.\n";
+        } else {
+            result = result + "Username is not correctly formatted; please ensure your username contains an underscore, a capital letter, and is no more than five characters in length.\n";
+        }
+
+        if (passwordOk) {
+            result = result + "Password successfully captured.\n";
+        } else {
+            result = result + "Password is not correctly formatted; please ensure the password contains at least eight characters, a capital letter, a number, and a special character.\n";
+        }
+
+        if (cellOk) {
+            result = result + "Cell phone number successfully added.\n";
+        } else {
+            result = result + "Cell phone number incorrectly formatted or does not contain international code.\n";
+        }
+
+        if (usernameOk && passwordOk && cellOk) {
+            registeredUsername = username;
+            registeredPassword = password;
+            registered = true;
+            result = result + "Registration successful!";
+        } else {
+            result = result + "Registration failed. Please try again.";
+        }
+        return result;
+    }
+
+    public boolean isRegistered() {
+        return registered;
+    }
+
+    public boolean loginUser(String username, String password) {
+        return registered
+                && registeredUsername.equals(username)
+                && registeredPassword.equals(password);
+    }
+
+    public String returnLoginStatus(boolean loginSuccess) {
+        if (loginSuccess) {
+            return "Login successful.";
+        } else {
+            return "Login failed: username or password is incorrect.";
+        }
+    }
 }

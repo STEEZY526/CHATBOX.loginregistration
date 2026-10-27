@@ -10,8 +10,6 @@ package com.mycompany.chatbox.ai;
  * @author vhutali
  */
 
-
-
 public class ChatboxAI {
 
     public static void main(String[] args) {
@@ -30,6 +28,9 @@ public class ChatboxAI {
             System.out.println(login.registerUser(username, password, cell));
         }
 
+        // PART 3: remembers who logged in, so we can show them as the sender
+        String loggedInUser = "";
+
         boolean loggedIn = false;
         while (!loggedIn) {
             System.out.println("=== Login ===");
@@ -40,10 +41,15 @@ public class ChatboxAI {
 
             loggedIn = login.loginUser(username, password);
             System.out.println(login.returnLoginStatus(loggedIn));
+
+            // PART 3
+            if (loggedIn) {
+                loggedInUser = username;
+            }
         }
 
         System.out.println("Welcome to QuickChat.");
-
+ System.out.println(Message.loadStoredMessages());
         int maxMessages = askForNumber(input, "How many messages do you want to enter? ");
         int messagesEntered = 0;
 
@@ -54,6 +60,7 @@ public class ChatboxAI {
             System.out.println("1) Send Messages");
             System.out.println("2) Show recently sent messages");
             System.out.println("3) Quit");
+            System.out.println("4) Stored Messages");   // PART 3
 
             String choice = input.nextLine().trim();
 
@@ -79,8 +86,11 @@ public class ChatboxAI {
                     System.out.println("Goodbye!");
                     running = false;
                     break;
+                case "4":   // PART 3
+                    showStoredMenu(input, loggedInUser);
+                    break;
                 default:
-                    System.out.println("Please enter 1, 2 or 3.");
+                    System.out.println("Please enter 1, 2, 3 or 4.");
             }
         }
     }
@@ -137,6 +147,55 @@ public class ChatboxAI {
         }
     }
 
+    // PART 3: the "Stored Messages" menu (options a to f from the brief)
+    private static void showStoredMenu(Scanner input, String sender) {
+        MessageStore store = Message.getStore();
+        boolean inStored = true;
+
+        while (inStored) {
+            System.out.println();
+            System.out.println("STORED MESSAGES");
+            System.out.println("1) Display sender and recipient of all stored messages");
+            System.out.println("2) Display the longest stored message");
+            System.out.println("3) Search for a message ID");
+            System.out.println("4) Search for all messages to a recipient");
+            System.out.println("5) Delete a message using its hash");
+            System.out.println("6) Display full report");
+            System.out.println("7) Back to main menu");
+            System.out.print("Choose an option: ");
+            String choice = input.nextLine().trim();
+
+            switch (choice) {
+                case "1":
+                    System.out.println(store.displayStored(sender));
+                    break;
+                case "2":
+                    System.out.println(store.longestStored());
+                    break;
+                case "3":
+                    System.out.print("Message ID: ");
+                    System.out.println(store.searchById(input.nextLine().trim()));
+                    break;
+                case "4":
+                    System.out.print("Recipient: ");
+                    System.out.println(store.searchByRecipient(input.nextLine().trim()));
+                    break;
+                case "5":
+                    System.out.print("Message hash: ");
+                    System.out.println(store.deleteByHash(input.nextLine().trim().toUpperCase()));
+                    break;
+                case "6":
+                    System.out.println(store.report());
+                    break;
+                case "7":
+                    inStored = false;
+                    break;
+                default:
+                    System.out.println("Please choose a number from 1 to 7.");
+            }
+        }
+    }
+
     private static int askForNumber(Scanner input, String prompt) {
         while (true) {
             System.out.print(prompt);
@@ -152,4 +211,5 @@ public class ChatboxAI {
         }
     }
 }
+
  
