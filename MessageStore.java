@@ -74,7 +74,10 @@ public class MessageStore {
     public int getSentCount() {
         return sentCount;
     }
-        // a) Sender and recipient of all stored messages
+      public String getSentMessage(int index) {
+        return sentMessages[index];
+    }
+        
     public String displayStored(String sender) {
         if (storedCount == 0) {
             return "No stored messages.";

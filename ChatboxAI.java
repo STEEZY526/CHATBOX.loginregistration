@@ -28,7 +28,7 @@ public class ChatboxAI {
             System.out.println(login.registerUser(username, password, cell));
         }
 
-        // PART 3: remembers who logged in, so we can show them as the sender
+      
         String loggedInUser = "";
 
         boolean loggedIn = false;
@@ -65,7 +65,7 @@ public class ChatboxAI {
             String choice = input.nextLine().trim();
 
             switch (choice) {
-                case "1":
+                case "1" -> {
                     if (messagesEntered >= maxMessages) {
                         System.out.println("You have already entered all " + maxMessages + " messages.");
                         System.out.println("Total messages sent: " + Message.returnTotalMessages());
@@ -77,20 +77,16 @@ public class ChatboxAI {
                                     + Message.returnTotalMessages());
                         }
                     }
-                    break;
-                case "2":
-                    System.out.println("Coming Soon.");
-                    break;
-                case "3":
+                }
+                case "2" -> System.out.println("Coming Soon.");
+                case "3" -> {
                     System.out.println("Total messages sent: " + Message.returnTotalMessages());
                     System.out.println("Goodbye!");
                     running = false;
-                    break;
-                case "4":   // PART 3
+                }
+                case "4" -> // PART 3
                     showStoredMenu(input, loggedInUser);
-                    break;
-                default:
-                    System.out.println("Please enter 1, 2, 3 or 4.");
+                default -> System.out.println("Please enter 1, 2, 3 or 4.");
             }
         }
     }
@@ -147,7 +143,7 @@ public class ChatboxAI {
         }
     }
 
-    // PART 3: the "Stored Messages" menu (options a to f from the brief)
+   
     private static void showStoredMenu(Scanner input, String sender) {
         MessageStore store = Message.getStore();
         boolean inStored = true;
@@ -166,32 +162,23 @@ public class ChatboxAI {
             String choice = input.nextLine().trim();
 
             switch (choice) {
-                case "1":
-                    System.out.println(store.displayStored(sender));
-                    break;
-                case "2":
-                    System.out.println(store.longestStored());
-                    break;
-                case "3":
+                case "1" -> System.out.println(store.displayStored(sender));
+                case "2" -> System.out.println(store.longestStored());
+                case "3" -> {
                     System.out.print("Message ID: ");
                     System.out.println(store.searchById(input.nextLine().trim()));
-                    break;
-                case "4":
+                }
+                case "4" -> {
                     System.out.print("Recipient: ");
                     System.out.println(store.searchByRecipient(input.nextLine().trim()));
-                    break;
-                case "5":
+                }
+                case "5" -> {
                     System.out.print("Message hash: ");
                     System.out.println(store.deleteByHash(input.nextLine().trim().toUpperCase()));
-                    break;
-                case "6":
-                    System.out.println(store.report());
-                    break;
-                case "7":
-                    inStored = false;
-                    break;
-                default:
-                    System.out.println("Please choose a number from 1 to 7.");
+                }
+                case "6" -> System.out.println(store.report());
+                case "7" -> inStored = false;
+                default -> System.out.println("Please choose a number from 1 to 7.");
             }
         }
     }
@@ -205,7 +192,7 @@ public class ChatboxAI {
                     return number;
                 }
             } catch (NumberFormatException e) {
-                // ask again
+                
             }
             System.out.println("Please enter a whole number greater than 0.");
         }

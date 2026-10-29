@@ -3,12 +3,19 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.mycompany.chatbox.ai;
+
+import com.google.gson.Gson;   // PART 3
+import java.io.FileReader;     // PART 3
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
+
 /**
- *
+ * JSON CODE ATTRIBUTION (Part 3)
+  - https://github.com/google/gson
+- https://github.com/google/gson/blob/main/UserGuide.md
+ 
  * @author Vhutali */
 
 public class Message {
@@ -24,8 +31,10 @@ public class Message {
     private static final ArrayList<Message> storedMessages = new ArrayList<>();
 
     private static final String JSON_FILE = "messages.json";
-  private static final MessageStore store = new MessageStore();
-  
+
+    // PART 3: one shared store that holds the arrays for the whole program
+    private static final MessageStore store = new MessageStore();
+
     public Message(int messageNumber, String recipient, String messageText) {
         this(generateMessageID(), messageNumber, recipient, messageText);
     }
@@ -36,6 +45,16 @@ public class Message {
         this.recipient = recipient;
         this.messageText = messageText;
         this.messageHash = createMessageHash();
+    }
+
+    // PART 3: used only when reading a saved message back from the JSON file,
+    // so the hash that was saved is kept exactly as it was
+    private Message(String messageID, String messageHash, String recipient, String messageText) {
+        this.messageID = messageID;
+        this.messageNumber = 0;
+        this.recipient = recipient;
+        this.messageText = messageText;
+        this.messageHash = messageHash;
     }
 
     private static String generateMessageID() {
@@ -82,35 +101,68 @@ public class Message {
         return word.replaceAll("[^A-Za-z0-9]", "");
     }
 
-   public String sentMessage(int choice) {
+    // PART 3: each choice now also puts the message into the arrays
+    public String sentMessage(int choice) {
         switch (choice) {
-            case 1 -> {
+            case 1:
                 sentMessages.add(this);
                 store.addSentMessage(messageText);
                 recordInStore();
                 return "Message successfully sent.";
-            }
-            case 2 -> {
+            case 2:
                 store.addDisregardedMessage(messageText);
                 recordInStore();
                 return "Press 0 to delete the message.";
-            }
-            case 3 -> {
+            case 3:
                 storedMessages.add(this);
                 storeMessage();
                 store.addStoredMessage(recipient, messageText);
                 recordInStore();
                 return "Message successfully stored.";
-            }
-            default -> {
+            default:
                 return "Invalid option.";
-            }
         }
     }
 
-   
+    // PART 3: puts this message's hash, ID, recipient and text into the arrays
     private void recordInStore() {
         store.recordMessage(messageHash, messageID, recipient, messageText);
+    }
+
+    // PART 3: lets other classes use the shared store
+    public static MessageStore getStore() {
+        return store;
+    }
+
+    // PART 3: one saved message exactly as it appears in messages.json
+    private static class StoredEntry {
+        private String messageID;
+        private String messageHash;
+        private String recipient;
+        private String message;
+    }
+
+    // PART 3: reads messages.json INTO the Stored Messages array
+    public static String loadStoredMessages() {
+        Gson gson = new Gson();
+        try (FileReader reader = new FileReader(JSON_FILE)) {
+            StoredEntry[] entries = gson.fromJson(reader, StoredEntry[].class);
+            if (entries == null) {
+                return "No stored messages on file yet.";
+            }
+            int loaded = 0;
+            for (int i = 0; i < entries.length; i++) {
+                StoredEntry e = entries[i];
+                Message m = new Message(e.messageID, e.messageHash, e.recipient, e.message);
+                storedMessages.add(m);
+                store.addStoredMessage(m.recipient, m.messageText);
+                store.recordMessage(m.messageHash, m.messageID, m.recipient, m.messageText);
+                loaded++;
+            }
+            return loaded + " stored message(s) loaded from " + JSON_FILE;
+        } catch (IOException e) {
+            return "No stored messages on file yet.";
+        }
     }
 
     public static String printMessages() {
@@ -169,13 +221,10 @@ public class Message {
         sentMessages.clear();
         storedMessages.clear();
     }
-    public static MessageStore getStore() {
-        return store;
-    }
+
     public String getMessageID() { return messageID; }
     public String getMessageHash() { return messageHash; }
     public String getRecipient() { return recipient; }
     public String getMessageText() { return messageText; }
     public int getMessageNumber() { return messageNumber; }
 }
-
